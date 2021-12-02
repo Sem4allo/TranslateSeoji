@@ -10,7 +10,8 @@ def main():
     r = str(r.text)
 
     title = r.find('<div class="pageTit">')
-    kor = (r[title+32:title+69])
+    h2 = r.find('</h2>',title,title+100)
+    kor = (r[title+32:h2])
 
     print(kor)
     print(ts.google(kor, to_language='en'))
