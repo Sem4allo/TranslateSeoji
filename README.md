@@ -1,2 +1,8 @@
 # TranslateSeoji
-Вставляете ссылку страницы Seoji получаете название с трёх языков.
+
+Вставляете ссылку страницы seoji.nl.go.krSeoji - получаете название с трёх языков.
+
+
+Options:
+pip install requests --upgrade
+pip install translators --upgrade
