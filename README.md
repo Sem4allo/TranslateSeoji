@@ -1,4 +1,6 @@
-# TranslateSeoji
+# Приблуды
+
+TranslateSeoji
 
 Вставляете ссылку страницы seoji.nl.go.krSeoji - получаете название с трёх языков.
 
