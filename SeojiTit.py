@@ -7,11 +7,14 @@ class Obejekt(object):
     def __init__(self):
         self.org = None #Оригинальная строка обьекта с которым работаем
         self.url = None  #Полная строка с сайта
+
         self.kor = '' #Корейский
         self.en = None #Англ
         self.ru = None #Русский
+
         self.au = None #Автор на коре
         self.il = None #Иллюстратор на коре
+        self.iz = None #Издатель на кор
 
     def add_url(self):
         self.url = input()
@@ -35,12 +38,27 @@ class Obejekt(object):
             self.org = self.org.replace(' ','',1)
         self.kor = self.org
 
-
     #Выдаёт строку автора без вырезов
-    def add_kor_au(self):
+    def add_org_au(self):
         tmp = self.url
         self.org = (self.url[self.url.find('<dt>제목 </dt>')+200:self.url.find('<dt>제목 </dt>')+1000])
         self.org = self.org[self.org.find('<dd>')+4:self.org.find('</dd>')+5]
+        self.url = tmp
+
+    #Выдаёт строку издателя
+    def add_org_iz(self):
+        tmp = self.url
+        iz = self.url.find('<dt>발행처</dt>')
+        self.org = self.url[iz:iz+1000]
+        self.org = self.org[self.org.find('<dd>'):self.org.find('</dd>')]
+        self.org = self.org[self.org.find('<dd>')+17:self.org.find('<a class=')]
+        if self.org.find('(') != (-1):
+            if self.org.find(' (') != (-1):
+                scob = self.org[self.org.find(' ('):self.org.find(')') + 1]
+            else:
+                scob = self.org[self.org.find('('):self.org.find(')') + 1]
+            self.org = self.org.replace(scob, '')
+        self.iz = self.org
         self.url = tmp
 
     #на языки
@@ -180,17 +198,16 @@ def main():
     print(' ')
 
     #Для автора и иллюстратора
-    tit.add_kor_au()
+    tit.add_org_au()
     tit.ilust_idi()
     tit.autor_idi()
-
+    
     #Вывод автора
     print('Автор:')
     print(tit.au)
     tit.translate_en(tit.au)
     print(tit.en)
-
-    if tit.il!=None:
+    if tit.il!=None: #Проверяю есть ли иллюстратор
         print(' ')
         print('Иллюстратор:')
         print(tit.il)
@@ -198,6 +215,11 @@ def main():
         print(tit.en)
         print('')
 
+    print('Издатель:')
+    tit.add_org_iz()
+    print(ts.google(tit.iz, to_language='ko'))
 
+    tit.translate_en(tit.iz)
+    print(tit.en)
 if __name__ == "__main__":
     main()
