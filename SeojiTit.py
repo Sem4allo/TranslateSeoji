@@ -9,8 +9,6 @@ class Obejekt(object):
         self.url = None  #Полная строка с сайта
 
         self.kor = '' #Корейский
-        self.en = None #Англ
-        self.ru = None #Русский
 
         self.au = None #Автор на коре
         self.il = None #Иллюстратор на коре
@@ -60,12 +58,6 @@ class Obejekt(object):
             self.org = self.org.replace(scob, '')
         self.iz = self.org
         self.url = tmp
-
-    #на языки
-    def translate_en(self,tr):
-        self.en = ts.google(tr, to_language='en')
-    def translate_ru(self,tr):
-        self.ru = ts.google(tr, to_language='ru')
 
     #Для всех
     def delete_simvol(self, simv):
@@ -130,7 +122,6 @@ class Obejekt(object):
         if rt != None:
             #Проверяю где он
             d=len(self.org)+1
-
             if self.org.find('(그림작가)', self.org.find(rt)) != (-1):#Иллюстратор
                 if self.org.find('(그림작가)') < d :
                     d = self.org.find('(그림작가)')
@@ -155,9 +146,9 @@ class Obejekt(object):
                 if self.org.find('원작자') < d:
                     d = self.org.find('원작자')
 
-            if self.url.find('  </dd>',self.url.find(rt))!=(-1): #Концовка
-                if self.org.find('  </dd>') < d :
-                    d = self.org.find('  </dd>')
+            if self.url.find(' </dd>',self.url.find(rt))!=(-1): #Концовка
+                if self.org.find(' </dd>') < d :
+                    d = self.org.find(' </dd>')
 
             if d != len(self.org) + 1:
                 self.au = self.org[self.org.find(rt):d]
@@ -188,38 +179,36 @@ def main():
     tit.add_url()
     tit.add_org_tit()
 
-    tit.translate_en(tit.kor)
-    tit.translate_ru(tit.en)
-
     #Вывод названия
     print(tit.org)
-    print(tit.en)
-    print(tit.ru)
+    print(ts.google(tit.org, to_language='en'))
+    print(ts.google(tit.org, to_language='ru'))
     print(' ')
 
     #Для автора и иллюстратора
     tit.add_org_au()
     tit.ilust_idi()
     tit.autor_idi()
+
     
     #Вывод автора
     print('Автор:')
     print(tit.au)
-    tit.translate_en(tit.au)
-    print(tit.en)
+    if tit.au!=None:
+        print(ts.google(tit.au, to_language='en'))
+    print(' ')
+
     if tit.il!=None: #Проверяю есть ли иллюстратор
-        print(' ')
         print('Иллюстратор:')
         print(tit.il)
-        tit.translate_en(tit.il)
-        print(tit.en)
+        print(ts.google(tit.il, to_language='en'))
         print('')
 
-    print('Издатель:')
-    tit.add_org_iz()
-    print(ts.google(tit.iz, to_language='ko'))
+    if tit.il != None:
+        print('Издатель:')
+        tit.add_org_iz()
+        print(ts.google(tit.iz, to_language='ko'))
+        print(ts.google(tit.iz, to_language='en'))
 
-    tit.translate_en(tit.iz)
-    print(tit.en)
 if __name__ == "__main__":
     main()
