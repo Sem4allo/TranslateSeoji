@@ -10,3 +10,5 @@ Options:
 pip install requests --upgrade
 
 pip install translators --upgrade
+
+pip install PySimpleGUI --upgrade
