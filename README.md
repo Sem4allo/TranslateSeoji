@@ -9,7 +9,7 @@ Options:
 
 pip install --upgrade pip
 
-pip install --upgrade pypiwin32
+pip install pypiwin32 --upgrade
 
 pip install requests --upgrade
 
