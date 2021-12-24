@@ -9,10 +9,8 @@ Options:
 
 pip install --upgrade pip
 
+pip install --upgrade pypiwin32
+
 pip install requests --upgrade
 
-pip install translators --upgrade
-
 pip install pyqt5 --upgrade
-
-pip install pyautogui --upgrade
