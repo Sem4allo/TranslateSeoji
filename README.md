@@ -2,9 +2,6 @@
 
 TranslateSeoji
 
-Вставляете ссылку страницы seoji.nl.go.krSeoji - получаете название с трёх языков.
-
-
 Options:
 
 pip install --upgrade pip
