@@ -1,6 +1,8 @@
+import sys
 import requests
+from PyQt5.QtWidgets import (QGridLayout, QPushButton, QTextEdit, QInputDialog,
+                             QApplication, QWidget, QLineEdit)
 import translators as ts
-import PySimpleGUI as sg
 
 
 class Obejekt(object):
@@ -11,9 +13,20 @@ class Obejekt(object):
 
         self.kor = '' #Корейский
 
+        self.tit = None #Название на коре
         self.au = None #Автор на коре
         self.il = None #Иллюстратор на коре
         self.iz = None #Издатель на кор
+
+        self.tit_en = None #Название на англ
+        self.au_en = None #Автор на англ
+        self.il_en = None #Иллюстратор на англ
+        self.iz_en = None #Издатель на англ
+
+        self.tit_ru = None  # Название на ру
+        self.au_ru = None  # Автор на ару
+        self.il_ru = None  # Иллюстратор на ру
+        self.iz_ru = None  # Издатель на ру
 
     def add_url(self, url):
         self.url = str(requests.get(url).text)
@@ -34,7 +47,7 @@ class Obejekt(object):
             scob = self.org[self.org.find('['):self.org.find(']') + 1]
             self.org = self.org.replace(scob, '')
             self.org = self.org.replace(' ','',1)
-        self.kor = self.org
+        self.tit = self.org
 
     #Выдаёт строку автора без вырезов
     def add_org_au(self):
@@ -110,6 +123,10 @@ class Obejekt(object):
                 if self.org.find('(그림작가)') < d :
                     d = self.org.find('(그림작가)')
 
+            if self.org.find('삽화가', self.org.find(rt)) != (-1):#Иллюстратор
+                if self.org.find('삽화가') < d :
+                    d = self.org.find('삽화가')
+
             if self.org.find('기획자 :', self.org.find(rt)) != (-1):#Организатор
                 if self.org.find('기획자 :') < d :
                     d = self.org.find('기획자 :')
@@ -170,68 +187,106 @@ class Obejekt(object):
                 scob = self.org[self.org.find('('):self.org.find(')') + 1]
             self.org = self.org.replace(scob, '')
         self.iz = self.org
+        self.iz = ts.google(self.iz, from_language='ko' ,to_language='ko')
         self.url = tmp
 
 
-def main():
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
 
+        self.setWindowTitle("ПЕРЕВОДЧИК - А ТЫ НЕ УЧИЛ КОРЕЙСКИЙ!!!")
 
-    layout = [
-        [sg.Text('Url'), sg.InputText()
-         ],
-        [sg.Output(size=(88, 20))],
-        [sg.Submit(), sg.Cancel()]
-    ]
-    window = sg.Window('File Compare', layout)
-    while True:  # The Event Loop
+        self.textEdit_1 = QTextEdit()
+        self.btnChangeText = QPushButton("Сылка")
+        self.btnChangeText.clicked.connect(self.changetext)
+
+        self.textEdit_2 = QTextEdit()
+        self.lineEdit = QLineEdit()
+
+        self.layout = QGridLayout(self)
+        self.layout.addWidget(self.textEdit_1, 0, 0)
+        self.layout.addWidget(self.btnChangeText, 1, 0)
+
+    def changetext(self):
+
+        url = "https://google-translate20.p.rapidapi.com/translate"
+        headers = {
+            'x-rapidapi-host': "google-translate20.p.rapidapi.com",
+            'x-rapidapi-key': "e610b08e93msh71fbb08a2c3dc7fp1128fcjsnb8bb7d9f09fc"
+        }
+
+        text, status = QInputDialog.getText(self, 'Вставь ссылку', 'Вставь ссылку!')
 
         tit = Obejekt()
-
-        event, values = window.read()
-
-        #print(values[0]) #Тута ссылка
-
-        tit.add_url(values[0])
-
-        if event in (None, 'Exit', 'Cancel'):
-            break
+        tit.add_url(text)
 
         # Для названия
         tit.add_org_tit()
-
-        # Вывод названия
-        print(tit.org)
-        print(ts.google(tit.org, to_language='en'))
-        print(ts.google(tit.org, to_language='ru'))
-        print(' ')
 
         # Для автора и иллюстратора
         tit.add_org_au()
         tit.ilust_idi()
         tit.autor_idi()
 
-        # Вывод автора
-        if tit.au != None:
-            print('Автор:')
-            print(tit.au)
-
-            print(ts.google(tit.au, to_language='en'))
-        print(' ')
-
-        # Вывод иллюстратора
-        if tit.il != None:
-            print('Иллюстратор:')
-            print(tit.il)
-            print(ts.google(tit.il, to_language='en'))
-            print('')
-
         tit.add_org_iz()
 
-        # Вывод издателя
-        if tit.iz != None:
-            print('Издатель:')
-            print(ts.google(tit.iz, to_language='ko'))
-            print(ts.google(tit.iz, to_language='en'))
+        if tit.il != None:
+            trnsen = tit.tit + '!' + tit.au + '!' + tit.iz + '!' + tit.il
+        else:
+            trnsen = tit.tit + '!' + tit.au + '!' + tit.iz
+
+        trnsru = trnsen
+
+        querystring = {"text": trnsen, "tl": "en", "sl": "ko"}
+        response = requests.request("GET", url, headers=headers, params=querystring)
+
+        trnsen = response.text[response.text.find('"translation":"') + 15:response.text.find('","pronunciation"')]
+
+        tit.tit_en = trnsen[:trnsen.find('!')]
+        tit.au_en = trnsen[trnsen.find('!')+2:trnsen.find('!', trnsen.find('!') + 1)]
+        tit.iz_en = trnsen[trnsen.find('!', trnsen.find('!') + 1) + 2:]
+        if tit.il != None:
+            tit.iz_en = trnsen[trnsen.find('!', trnsen.find('!') + 1) + 2:trnsen.rfind('!')]
+            tit.il_en = trnsen[trnsen.find('!', trnsen.find('!', trnsen.find('!', trnsen.find('!') + 1)) + 1)+2:]
+
+        querystring = {"text": trnsru, "tl": "ru", "sl": "ko"}
+        response = requests.request("GET", url, headers=headers, params=querystring)
+
+        trnsru = response.text[response.text.find('"translation":"') + 15:response.text.find('","pronunciation"')]
+
+        tit.tit_ru = trnsru[:trnsru.find('!')]
+        tit.au_ru = trnsru[trnsru.find('!') + 2:trnsru.find('!', trnsru.find('!') + 1)]
+        if tit.il != None:
+            tit.il_ru = trnsru[trnsru.find('!', trnsru.find('!', trnsru.find('!', trnsru.find('!') + 1)) + 1) + 2:]
+
+        a_window.addText1("Название:")
+        a_window.addText1(tit.tit)
+        a_window.addText1(tit.tit_en)
+        a_window.addText1(tit.tit_ru)
+        a_window.addText1("Автор:")
+        a_window.addText1(tit.au)
+        a_window.addText1(tit.au_en)
+        a_window.addText1(tit.au_ru)
+        if tit.il != None:
+            a_window.addText1("Илюстратор:")
+            a_window.addText1(tit.il)
+            a_window.addText1(tit.il_en)
+            a_window.addText1(tit.il_ru)
+        a_window.addText1("Издатель:")
+        a_window.addText1(tit.iz)
+        a_window.addText1(tit.iz_en)
+
+    def addText1(self, text):
+        self.textEdit_1.insertPlainText(text + '\n')
+
+
+
+
 
 if __name__ == "__main__":
-    main()
+    app = QApplication(sys.argv)
+    a_window = Window()
+    a_window.resize(700, 300)
+    a_window.show()
+    sys.exit(app.exec_())
