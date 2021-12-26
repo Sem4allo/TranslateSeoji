@@ -9,8 +9,6 @@ Options:
 
 pip install --upgrade pip
 
-pip install pypiwin32 --upgrade
-
 pip install requests --upgrade
 
 pip install pyqt5 --upgrade
