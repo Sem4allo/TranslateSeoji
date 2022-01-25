@@ -256,9 +256,6 @@ class Window(QWidget):
         trnsru = response.text[response.text.find('"translation":"') + 15:response.text.find('","pronunciation"')]
 
         tit.tit_ru = trnsru[:trnsru.find('!')]
-        tit.au_ru = trnsru[trnsru.find('!') + 2:trnsru.find('!', trnsru.find('!') + 1)]
-        if tit.il != None:
-            tit.il_ru = trnsru[trnsru.find('!', trnsru.find('!', trnsru.find('!', trnsru.find('!') + 1)) + 1) + 2:]
 
         a_window.addText1("Название:")
         a_window.addText1(tit.tit)
@@ -267,12 +264,10 @@ class Window(QWidget):
         a_window.addText1("Автор:")
         a_window.addText1(tit.au)
         a_window.addText1(tit.au_en)
-        a_window.addText1(tit.au_ru)
         if tit.il != None:
             a_window.addText1("Илюстратор:")
             a_window.addText1(tit.il)
             a_window.addText1(tit.il_en)
-            a_window.addText1(tit.il_ru)
         a_window.addText1("Издатель:")
         a_window.addText1(tit.iz)
         a_window.addText1(tit.iz_en)
